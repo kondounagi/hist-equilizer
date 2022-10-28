@@ -16,6 +16,14 @@ def get_args():
         "-o", "--output_dir", required=True, help="Output dir", default="output"
     )
     parser.add_argument(
+        "-l",
+        "--limit",
+        required=False,
+        default=-1,
+        type=int,
+        help="The maximum number of images to process",
+    )
+    parser.add_argument(
         "--use-clahe",
         action="store_true",
         help="Use CLAHE instead of histogram equalization",
@@ -32,6 +40,11 @@ def get_args():
         default=8,
         help="CLAHE tile grid size (default: 8)",
     )
+    parser.add_argument(
+        "--param-search",
+        action="store_true",
+        help="Generate outputs with various parameters to find best ones",
+    )
     return parser.parse_args()
 
 
@@ -41,9 +54,12 @@ def main(
     tile_grid_size: int,
     include: str,
     output_dir: str,
+    limit: int,
 ):
     os.makedirs(output_dir, exist_ok=True)
     input_paths = list(glob(include))
+    if limit != -1:
+        input_paths = input_paths[:limit]
 
     if use_clahe:
         clahe = cv2.createCLAHE(
@@ -64,7 +80,17 @@ def main(
             else:
                 out_img = cv2.equalizeHist(in_img)
 
-            output_path = os.path.join(output_dir, os.path.split(input_path)[-2])
+            base_name = os.path.splitext(os.path.split(input_path)[-2])[0]
+            filename = (
+                (
+                    base_name
+                    + f"__CLAHE__clip-limit_{clip_limit}__tile-grid-size_{tile_grid_size}.png"
+                )
+                if use_clahe
+                else (base_name + "__histEqualizer.png")
+            )
+
+            output_path = os.path.join(output_dir, filename)
             bar.text(f"Writing to {output_path}")
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             cv2.imwrite(output_path, out_img)
@@ -73,4 +99,18 @@ def main(
 
 if __name__ == "__main__":
     args = get_args()
-    main(**vars(args))
+    if args.param_search:
+        for clip_limit in (5, 10, 20, 40, 80, 160, 320):
+            for tile_grid_size in (2, 4, 8, 16, 32, 64):
+                print(f"{clip_limit=}, {tile_grid_size=}")
+                main(
+                    use_clahe=True,
+                    clip_limit=clip_limit,
+                    tile_grid_size=tile_grid_size,
+                    include=args.include,
+                    output_dir=args.output_dir,
+                    limit=args.limit,
+                )
+        pass
+    else:
+        main(**vars(args))
