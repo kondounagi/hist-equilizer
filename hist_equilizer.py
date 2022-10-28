@@ -102,8 +102,8 @@ def main(
 if __name__ == "__main__":
     args = get_args()
     if args.param_search:
-        for clip_limit in (5, 10, 20, 40, 80, 160, 320):
-            for tile_grid_size in (2, 4, 8, 16, 32, 64):
+        for clip_limit in (1, 2, 4, 8, 10, 20, 40, 80, 160):
+            for tile_grid_size in (2, 4, 8, 16, 32, 64, 128, 256, 512):
                 print(f"{clip_limit=}, {tile_grid_size=}")
                 main(
                     use_clahe=True,
@@ -115,4 +115,5 @@ if __name__ == "__main__":
                 )
         pass
     else:
+        delattr(args, "param_search")
         main(**vars(args))
