@@ -20,6 +20,18 @@ def get_args():
         action="store_true",
         help="Use CLAHE instead of histogram equalization",
     )
+    parser.add_argument(
+        "--clip-limit",
+        type=float,
+        default=2.0,
+        help="CLAHE clip limit (default: 2.0)",
+    )
+    parser.add_argument(
+        "--tile-grid-size",
+        type=int,
+        default=8,
+        help="CLAHE tile grid size (default: 8)",
+    )
     return parser.parse_args()
 
 
@@ -29,7 +41,13 @@ if __name__ == "__main__":
     input_paths = list(glob(args.include))
 
     if args.use_clahe:
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        clahe = cv2.createCLAHE(
+            clipLimit=args.clip_limit,
+            tileGridSize=(
+                args.tile_grid_size,
+                args.tile_grid_size,
+            ),
+        )
 
     with alive_bar(len(input_paths)) as bar:
         for input_path in input_paths:
