@@ -13,7 +13,7 @@ def get_args():
         "-i", "--include", required=True, help="Grep expression to include"
     )
     parser.add_argument(
-        "-o", "--output", required=True, help="Output dir", default="output"
+        "-o", "--output_dir", required=True, help="Output dir", default="output"
     )
     parser.add_argument(
         "--use-clahe",
@@ -35,17 +35,22 @@ def get_args():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
-    args = get_args()
-    os.makedirs(args.output, exist_ok=True)
-    input_paths = list(glob(args.include))
+def main(
+    use_clahe: bool,
+    clip_limit: float,
+    tile_grid_size: int,
+    include: str,
+    output_dir: str,
+):
+    os.makedirs(output_dir, exist_ok=True)
+    input_paths = list(glob(include))
 
-    if args.use_clahe:
+    if use_clahe:
         clahe = cv2.createCLAHE(
-            clipLimit=args.clip_limit,
+            clipLimit=clip_limit,
             tileGridSize=(
-                args.tile_grid_size,
-                args.tile_grid_size,
+                tile_grid_size,
+                tile_grid_size,
             ),
         )
 
@@ -54,13 +59,18 @@ if __name__ == "__main__":
             bar.text(f"Processing {input_path}")
             in_img = cv2.imread(input_path, 0)
 
-            if args.use_clahe:
+            if use_clahe:
                 out_img = clahe.apply(in_img)
             else:
                 out_img = cv2.equalizeHist(in_img)
 
-            output_path = os.path.join(args.output, os.path.split(input_path)[-2])
+            output_path = os.path.join(output_dir, os.path.split(input_path)[-2])
             bar.text(f"Writing to {output_path}")
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             cv2.imwrite(output_path, out_img)
             bar()
+
+
+if __name__ == "__main__":
+    args = get_args()
+    main(**vars(args))
