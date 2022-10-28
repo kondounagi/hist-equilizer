@@ -10,15 +10,17 @@ from alive_progress import alive_bar
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", "--include", required=True, help="Grep expression to include"
+        "-i", "--include", default="./input", help="Grep expression to include"
     )
     parser.add_argument(
-        "-o", "--output_dir", required=True, help="Output dir", default="output"
+        "-o",
+        "--output_dir",
+        default="./output",
+        help="Output dir",
     )
     parser.add_argument(
         "-l",
         "--limit",
-        required=False,
         default=-1,
         type=int,
         help="The maximum number of images to process",
