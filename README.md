@@ -42,3 +42,7 @@ optional arguments:
 ```
 python ./hist_equilizer.py -i "./input/**/*.png" -o "./output" --use-clahe --clip-limit 8 --tile-grid-size 32
 ```
+
+## Memo
+
+- You can input both gray and color images.
