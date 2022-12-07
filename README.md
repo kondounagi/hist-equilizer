@@ -1,5 +1,7 @@
 # hist-equilizer
 
+- You can input both gray and color images.
+
 ## Prerequisites
 
 ```
@@ -37,7 +39,7 @@ optional arguments:
   --param-search        Generate outputs with various parameters to find best ones
 ```
 
-## Input directory assumption
+## Input directory structure
 
 ```
 input
@@ -73,6 +75,13 @@ input
 python ./hist_equilizer.py -i "./input/造影画像" -o "./output" --use-clahe --clip-limit 8 --tile-grid-size 32
 ```
 
-## Memo
+## Tips
 
-- You can input both gray and color images.
+- Useful parameters
+  - FA images from Optos California
+    - NPA
+      - `--clip-limit 8`
+      - `--tile-grid-size 32`
+    - NV
+      - `--clip-limit 8`
+      - `--tile-grid-size 512`
