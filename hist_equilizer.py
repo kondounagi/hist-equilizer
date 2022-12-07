@@ -10,7 +10,7 @@ from alive_progress import alive_bar
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-i", "--include", default="./input", help="Grep expression to include"
+        "-i", "--input-dir", default="./input", help="Path to input images"
     )
     parser.add_argument(
         "-o",
@@ -97,37 +97,38 @@ class HistEqualizer(object):
         lab[..., 0] = self._hist_equalize_gray(lab[..., 0])
         return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
-    def run(self, include: str, output_dir: str, **_):
-        os.makedirs(output_dir, exist_ok=True)
-        input_paths = list(glob(include))
+    def run(self, input_dir: str, output_dir: str, **_):
+        glob_pattern = os.path.join(input_dir, "**", "*.png")
+        png_paths = glob(glob_pattern, recursive=True)
         if self.limit != -1:
-            input_paths = input_paths[: self.limit]
+            png_paths = png_paths[: self.limit]
 
-        with alive_bar(len(input_paths)) as bar:
-            for input_path in input_paths:
-                bar.text(f"Processing {input_path}")
+        os.makedirs(output_dir, exist_ok=True)
+
+        with alive_bar(len(png_paths)) as bar:
+            for png_path in png_paths:
+                bar.text(f"Processing {png_path}")
 
                 # if in_img is grayscale
                 if not self.is_color:
-                    in_img = cv2.imread(input_path, cv2.IMREAD_GRAYSCALE)
+                    in_img = cv2.imread(png_path, cv2.IMREAD_GRAYSCALE)
                     out_img = self._hist_equalize_gray(in_img)
                     # Presuppose that the directory structure is as follows:
                     # ├───gray_input
                     # │   ├───00176222_20200602_092903.627_COLOR_L_2.png
                     #         ├─SubImage.png
-                    basename = os.path.splitext(os.path.split(input_path)[-2])[0]
                 # if in_img is color
                 elif self.is_color:
-                    in_img = cv2.imread(input_path, cv2.IMREAD_COLOR)
+                    in_img = cv2.imread(png_path, cv2.IMREAD_COLOR)
                     out_img = self._hist_equalize_color(in_img)
                     # Presuppose that the directory structure is as follows:
                     # ├───color_input
                     # │   ├───00176222_20200602_092903.627_COLOR_L_2.png
-                    basename = os.path.basename(input_path)
                 else:
                     raise ValueError("Invalid image shape")
 
-                filename = basename + self.output_suffix
+                rel_path = os.path.relpath(png_path, input_dir)
+                filename = os.path.splitext(rel_path)[0] + self.output_suffix
                 output_path = os.path.join(output_dir, filename)
                 bar.text(f"Writing to {output_path}")
 
