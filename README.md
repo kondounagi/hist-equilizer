@@ -77,7 +77,7 @@ python ./hist_equilizer.py -i "./input/造影画像" -o "./output" --use-clahe -
 
 ## Tips
 
-- Useful parameters
+- Recommended parameters
   - FA images from Optos California
     - NPA
       - `--clip-limit 8`
@@ -85,3 +85,7 @@ python ./hist_equilizer.py -i "./input/造影画像" -o "./output" --use-clahe -
     - NV
       - `--clip-limit 8`
       - `--tile-grid-size 512`
+  - COLOR images from Optos California
+    - `--clip-limit 10`
+    - `--tile-grid-size 2`
+
