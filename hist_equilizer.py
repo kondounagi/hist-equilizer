@@ -52,6 +52,11 @@ def get_args():
         action="store_true",
         help="Generate outputs with various parameters to find best ones",
     )
+    parser.add_argument(
+        "-r",
+        "--resursive",
+        action="store_true",
+    )
     return parser.parse_args()
 
 
@@ -97,8 +102,8 @@ class HistEqualizer(object):
         lab[..., 0] = self._hist_equalize_gray(lab[..., 0])
         return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
-    def run(self, input_dir: str, output_dir: str, **_):
-        glob_pattern = os.path.join(input_dir, "**", "*.png")
+    def run(self, input_dir: str, output_dir: str, recursive: bool, **_):
+        glob_pattern = os.path.join(input_dir, "**", "*.png") if recursive else os.path.join(input_dir, "*.png")
         png_paths = glob(glob_pattern, recursive=True)
         if self.limit != -1:
             png_paths = png_paths[: self.limit]
