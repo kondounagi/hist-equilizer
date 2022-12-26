@@ -54,7 +54,7 @@ def get_args():
     )
     parser.add_argument(
         "-r",
-        "--resursive",
+        "--recursive",
         action="store_true",
     )
     return parser.parse_args()
@@ -104,6 +104,7 @@ class HistEqualizer(object):
 
     def run(self, input_dir: str, output_dir: str, recursive: bool, **_):
         glob_pattern = os.path.join(input_dir, "**", "*.png") if recursive else os.path.join(input_dir, "*.png")
+        print("glob_pattern", glob_pattern)
         png_paths = glob(glob_pattern, recursive=True)
         if self.limit != -1:
             png_paths = png_paths[: self.limit]
