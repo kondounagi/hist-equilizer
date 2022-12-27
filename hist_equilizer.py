@@ -57,6 +57,11 @@ def get_args():
         "--recursive",
         action="store_true",
     )
+    parser.add_argument(
+        "--ext",
+        type=str,
+        choices=["png", "jpg", "jpeg"],
+    )
     return parser.parse_args()
 
 
@@ -68,6 +73,7 @@ class HistEqualizer(object):
         tile_grid_size: int,
         is_color: bool,
         limit: int,
+        ext: str,
         **_,
     ):
         self.clahe = (
@@ -82,12 +88,13 @@ class HistEqualizer(object):
             else None
         )
         self.output_suffix = (
-            (f"__CLAHE__clip-limit_{clip_limit}__tile-grid-size_{tile_grid_size}.png")
+            (f"__CLAHE__clip-limit_{clip_limit}__tile-grid-size_{tile_grid_size}.{ext}")
             if use_clahe
-            else "__histEqualizer.png"
+            else f"__histEqualizer.{ext}"
         )
         self.is_color = is_color
         self.limit = limit
+        self.ext = ext
 
     def _hist_equalize_gray(self, img: np.ndarray) -> np.ndarray:
         if self.clahe is not None:
@@ -103,7 +110,11 @@ class HistEqualizer(object):
         return cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
 
     def run(self, input_dir: str, output_dir: str, recursive: bool, **_):
-        glob_pattern = os.path.join(input_dir, "**", "*.png") if recursive else os.path.join(input_dir, "*.png")
+        glob_pattern = (
+            os.path.join(input_dir, "**", f"*.{self.ext}")
+            if recursive
+            else os.path.join(input_dir, f"*.{self.ext}")
+        )
         print("glob_pattern", glob_pattern)
         png_paths = glob(glob_pattern, recursive=True)
         if self.limit != -1:
