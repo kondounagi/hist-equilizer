@@ -88,4 +88,6 @@ python ./hist_equilizer.py -i "./input/造影画像" -o "./output" --use-clahe -
   - COLOR images from Optos California
     - `--clip-limit 10`
     - `--tile-grid-size 2`
-
+  - dryAMD
+    - `--clip-limit 4`
+    - `--tile-grid-size 2`
